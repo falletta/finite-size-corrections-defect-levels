@@ -10,7 +10,7 @@ To run the script, type: ``python3 finite-size-corrections-defect-levels.py infi
 * ``r_defect[A]``: coordinates of the defect in Angstrom
 * ``E_cutoff[Ry]``: energy cutoff in Rydberg
 * ``direction``: direction for the average of the electrostatic potential (``x``, ``y``, ``z``)
-* ``sigma[Bohr]``: variance Gaussian for calculating the alignment term
+* ``sigma[Bohr]``: variance Gaussian for calculating the alignment term in Bohr
 * ``eps_0``: static dielectric constant
 * ``eps_inf``: high-frequency dielectric constant
 * ``alignment``: flag for calculating the alignment term (``yes``, ``no``)
