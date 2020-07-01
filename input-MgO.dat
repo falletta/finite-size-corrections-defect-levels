@@ -7,10 +7,10 @@ latt_param[A,deg]   8.449 8.449 8.449 90.00 90.00 90.00
 r_defect[A]         6.340 2.113 2.113    
 E_cutoff[Ry]        200
 direction           z
-sigma[Bohr]         1.0
+sigma[Bohr]         1.4
 eps_0               8.6
 eps_inf             3.0
-alignment           no
+alignment           yes
 
 N_states   3
 qC  qR  directory_potential

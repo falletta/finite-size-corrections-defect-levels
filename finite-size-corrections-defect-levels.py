@@ -4,22 +4,20 @@
 
 # Libraries
 import sys
-import cmath
+import os
 import numpy as np
 import scipy as sp
 import scipy.integrate as integrate
 import matplotlib
-matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from matplotlib.backends.backend_pdf import PdfPages
 plt.rcParams.update({'font.size': 24,'legend.fontsize': 20,'legend.handlelength': 0.5})
 
 #Constants
-infile	        = sys.argv[1]
-hartree2eV      = 27.211396132
-bohr2A          = 0.529177249
-A2bohr          = 1.8897259886
+hartree2eV = 27.211396132
+bohr2A = 0.529177249
+A2bohr = 1.8897259886
 
 # Gaussian function
 def gaussian(x, sig, xmax):
@@ -93,9 +91,10 @@ def parser(infile):
                         Vtots[(qC,qR)] = Potential(s2[2],dir)
                         if qC == 0 and qR == 0:
                             r_idir = Vtots[(0,0)].r_idir
-    if (0,0) not in Vtots.keys() or (0,0) not in states:
-        print("The state (0,0) is missing -> interrupting the script ")
-        sys.exit()
+    if align:
+        if (0,0) not in states or (0,0) not in Vtots.keys():
+            print("Error: the potential of the state (0,0) is missing")
+            sys.exit()
     parameters = [system, p, rdef, r_idir, Ecut, dir, σ, ε0, εinf, align]
     return [parameters, states, Vtots]
     
@@ -138,7 +137,7 @@ class Potential:
             i1 = 0; i2 = 0;	normalization = nx*ny; self.r_idir = z
         V = sp.sum(sp.sum(V_3D, axis=i1), axis=i2) / normalization
         
-        # Invert sign (CP2K convention)
+        # Invert sign
         self.V = -V                
         
 # FNV corrections
@@ -275,7 +274,7 @@ class FWP_corr:
     # Alignment for state with qC = qR
     def calculate_alignment_FNV(self, V, Vgauss, extralabel, plot_flag=True):
         
-        #Compute the convolution of V with a gaussian of the same width as the model potential
+        #Convolution of V with a gaussian of the same width as the model potential
         N = len(V)
         V_convolution = [0]*N
         for i in range(N):
@@ -284,7 +283,7 @@ class FWP_corr:
         area_below_gaussian = integrate.quad(lambda x: gaussian(x,self.σ,self.r_idir[-1]), 0, self.r_idir[-1])[0]
         V_convolution = [x/area_below_gaussian for x in V_convolution]
         
-        #Compute useful quantities
+        #Useful quantities
         r_idir_meas = self.r_idir[self.i_ΔV]
         ΔV = V_convolution-Vgauss
         ΔV_far = ΔV[self.i_ΔV]
@@ -292,7 +291,7 @@ class FWP_corr:
         ymax = max(V_convolution[self.i_ΔV],Vgauss[self.i_ΔV])
         length = ( max(max(max(V),max(Vgauss)), max(V_convolution)) - min(min(min(V),min(Vgauss)), min(V_convolution)) ) / 10
         
-        #Plot
+        #Plot the alignment
         if plot_flag:
             f  = plt.figure(figsize=(6,6), dpi=60)
             ax = plt.gca()
@@ -302,12 +301,7 @@ class FWP_corr:
             ax.yaxis.set_tick_params(which='major', width=3.0, length=12, direction="in")
             plt.gcf().subplots_adjust(left=0.15, bottom=0.19, top=0.79, right=0.95)
             plt.title(self.label+extralabel, fontsize=24)
-            if self.idir == 0:
-                plt.xlabel("$x$ (Å)")
-            if self.idir == 1:
-                plt.xlabel("$y$ (Å)")
-            if self.idir == 2:
-                plt.xlabel("$z$ (Å)")
+            plt.xlabel(self.dir+" (Å)")
             plt.xlim(self.r_idir[0], self.r_idir[-1])
             plt.plot(self.r_idir, Vgauss, label='$V_\mathrm{m}$', linewidth=2.5)
             plt.plot(self.r_idir, V, label="$V_\mathrm{DFT}$", linewidth=2.5) 
@@ -320,9 +314,10 @@ class FWP_corr:
             plt.close()
     
         return ΔV_far
-    
-print("FWP finite-size corrections")
-[parameters, states, Vtots] = parser(infile)
+
+# Executing the script
+print("Calculating FWP finite-size corrections")
+[parameters, states, Vtots] = parser(sys.argv[1])
 [Eiso, Eper, Vgauss] = FNV_corr(parameters)
 with PdfPages(parameters[0]+".pdf") as pdf:
     for state in states:
@@ -333,3 +328,5 @@ with PdfPages(parameters[0]+".pdf") as pdf:
             print('\nState: ({:+.2f}, R{:+.2f})'.format(state[0],state[1]))
             print('Ecor    = {:+.6f} eV'.format(fs_defect.Ecor))
             print('eps_cor = {:+.6f} eV'.format(fs_defect.εKS_cor))
+if not parameters[-1]:
+    os.remove(parameters[0]+".pdf")
