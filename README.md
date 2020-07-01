@@ -4,7 +4,7 @@ This script calculates the finite-size corrections of total energies and single-
 
 ## Use
 
-The script requires the following inputs:
+To run the script, type: ``python3 finite-size-corrections-defect-levels.py infile.dat``, where ``infile.dat`` in the input file, which requires the following inputs:
 * ``system``: name of the system
 * ``latt_param[A,deg]``: lattice parameters in Angstrom and angles in degrees
 * ``r_defect[A]``: coordinates of the defect in Angstrom
@@ -16,5 +16,5 @@ The script requires the following inputs:
 * ``alignment``: flag for calculating the alignment term (``yes``, ``no``)
 * ``N_states``: number of states
 
-The states are denoted as ``(qC,qR)``, where ``qC`` is the charge state and ``qR`` the charge generating the lattice distortions. If ``alignment = yes``, the cubefiles of the electrostatic potentials associated with each defect states are required.
+The states are denoted as ``(qC,qR)``, where ``qC`` is the charge state and ``qR`` the charge generating the lattice distortions. The script gives in output the corrections for the total energy and single-particle defect level of each state. If ``alignment`` is enabled, theb the cubefiles of the electrostatic potentials associated with each defect states are required in input. A plot file is also printed to show the calculation of the alignments.
 
