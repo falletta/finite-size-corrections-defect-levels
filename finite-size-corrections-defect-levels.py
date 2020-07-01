@@ -321,7 +321,7 @@ class FWP_corr:
 print("FWP finite-size corrections")
 [parameters, states, Vtots] = parser(infile)
 [Eiso, Eper, Vgauss] = FNV_corr(parameters)
-with PdfPages("result.pdf") as pdf:
+with PdfPages(parameters[0]+".pdf") as pdf:
     for state in states:
         if state != (0,0):
             fs_defect = FWP_corr(state, parameters, Eiso, Eper, Vgauss, Vtots)
