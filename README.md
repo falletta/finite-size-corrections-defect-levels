@@ -1,1 +1,1 @@
-# finite-size-corrections-defect-levels
+# Finite-Size Corrections of Defect Energy Levels Involving Ionic Polarization
