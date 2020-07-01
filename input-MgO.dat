@@ -3,17 +3,17 @@ INPUT FILE
 ==========
 
 system              MgO
-latt_param[A,deg]   16.907 16.907 16.907 90.00 90.00 90.00
-r_defect[A]         6.340 6.340 10.567
+latt_param[A,deg]   8.449 8.449 8.449 90.00 90.00 90.00
+r_defect[A]         6.340 2.113 2.113    
 E_cutoff[Ry]        200
 direction           z
 sigma[Bohr]         1.0
 eps_0               8.6
-eps_inf             2.5
-alignment           yes
+eps_inf             3.0
+alignment           no
 
 N_states   3
 qC  qR  directory_potential
-0   0   ./Data/MgO-444/MgO-bulk-v_hartree.cube
-1   1   ./Data/MgO-444/MgO-hpol-v_hartree.cube
-0   1   ./Data/MgO-444/MgO-npol-v_hartree.cube
+0   0   ./data/MgO-bulk-v_hartree.cube
+1   1   ./data/MgO-hpol-v_hartree.cube
+0   1   ./data/MgO-npol-v_hartree.cube
