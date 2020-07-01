@@ -17,3 +17,5 @@ To run the script, type: ``python3 finite-size-corrections-defect-levels.py infi
 * ``N_states``: number of states
 
 The states are denoted as ``(qC,qR)``, where ``qC`` is the charge state and ``qR`` the charge generating the lattice distortions. The script gives in output the corrections for the total energy and single-particle defect level of each state. If ``alignment`` is enabled, the cubefiles of the electrostatic potentials of the states ``(qC,qR)``, ``(qR,qR)`` and ``(0,0)`` are required in input. A plot file is also printed to illustrate the calculation of the alignments. 
+
+An example of input file is ``input-MgO.dat``, where the finite-size corrections are calculated in the cases of the charged and neutral hole polaron in MgO (supercell 64 atoms). The complete set of data used in the paper of [Falletta *et al.*](https://journals.aps.org/prb/accepted/a307bYebYaa1f267498c8912422be5af7ddfad0fc) can be found in the Materials Cloud repository.
