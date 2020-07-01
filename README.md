@@ -4,7 +4,7 @@ This script calculates the finite-size corrections of total energies and single-
 
 ## Use
 
-To run the script, type: ``python3 finite-size-corrections-defect-levels.py infile.dat``, where ``infile.dat`` in the input file, which requires the following inputs:
+To run the script, type: ``python3 finite-size-corrections-defect-levels.py infile.dat``, where ``infile.dat`` takes the following inputs:
 * ``system``: name of the system
 * ``latt_param[A,deg]``: lattice parameters in Angstrom and angles in degrees
 * ``r_defect[A]``: coordinates of the defect in Angstrom
