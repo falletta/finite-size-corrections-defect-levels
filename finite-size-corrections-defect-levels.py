@@ -93,6 +93,9 @@ def parser(infile):
                         Vtots[(qC,qR)] = Potential(s2[2],dir)
                         if qC == 0 and qR == 0:
                             r_idir = Vtots[(0,0)].r_idir
+    if (0,0) not in Vtots.keys() or (0,0) not in states:
+        print("The state (0,0) is missing -> interrupting the script ")
+        sys.exit()
     parameters = [system, p, rdef, r_idir, Ecut, dir, σ, ε0, εinf, align]
     return [parameters, states, Vtots]
     
