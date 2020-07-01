@@ -16,5 +16,4 @@ To run the script, type: ``python3 finite-size-corrections-defect-levels.py infi
 * ``alignment``: flag for calculating the alignment term (``yes``, ``no``)
 * ``N_states``: number of states
 
-The states are denoted as ``(qC,qR)``, where ``qC`` is the charge state and ``qR`` the charge generating the lattice distortions. The script gives in output the corrections for the total energy and single-particle defect level of each state. If ``alignment`` is enabled, then the cubefiles of the electrostatic potentials associated with each defect states are required in input. A plot file is also printed to illustrate the calculation of the alignments.
-
+The states are denoted as ``(qC,qR)``, where ``qC`` is the charge state and ``qR`` the charge generating the lattice distortions. The script gives in output the corrections for the total energy and single-particle defect level of each state. If ``alignment`` is enabled, the cubefiles of the electrostatic potentials of the states ``(qC,qR)``, ``(qR,qR)`` and ``(0,0)`` are required in input. A plot file is also printed to illustrate the calculation of the alignments. 
