@@ -1,0 +1,33 @@
+INPUTS FOR COMPUTING THE FORMATION ENERGY OF A DEFECT - (0,R0) = pristine system
+
+<System>
+System:						MgO-222
+Lattice_parameters[A]:	 	8.4536 8.4536 8.4536 90.0000 90.0000 90.0000
+Energy_cutoff[Ry]:		 	200
+idir_average:				z
+sigma_gaussian[Bohr]:		1.0
+epsilon_0:					8.6
+eps_infty:					2.5
+valence_band[eV]:			2.195420
+E_chemical_pot[a.u.]:		0
+<end>
+
+<Energy>
+qC	qR	E[a.u.]
+ref	ref	-544.822400853006002
+1	1   -544.923503719007158
+0	1   -544.794384309470388
+<end>
+
+<Potential>
+qC	qR		File
+ref	ref		../../CP2K/MgO/Electrostatic_potentials/MgO-sc222-hybrid-relaxed-v_hartree.cube
+1	1		../../CP2K/MgO/Electrostatic_potentials/MgO-sc222-hybrid-relaxed-hpol-h-v_hartree.cube
+0	1		../../CP2K/MgO/Electrostatic_potentials/MgO-sc222-hybrid-relaxed-hpol-neutral-v_hartree.cube
+<end>
+
+<KS>
+qC	qR	KS_wrt_AEP[eV]
+1	1	4.206108
+0	1	2.846390
+<end>
