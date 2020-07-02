@@ -9,7 +9,7 @@ E_cutoff[Ry]        200
 direction           z
 sigma[Bohr]         1.4
 eps_0               8.6
-eps_inf             3.0
+eps_inf             2.5
 alignment           yes
 
 N_states   3
