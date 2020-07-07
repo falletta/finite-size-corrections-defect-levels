@@ -84,8 +84,8 @@ def parser(infile):
                 N = int(s[1])
                 for line2 in data[i+2:i+2+N]:
                     s2 = line2.split()
-                    qC = int(s2[0])
-                    qR = int(s2[1])
+                    qC = float(s2[0])
+                    qR = float(s2[1])
                     states.append((qC,qR))
                     if align:
                         Vtots[(qC,qR)] = Potential(s2[2],dir)
