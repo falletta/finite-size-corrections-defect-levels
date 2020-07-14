@@ -1,7 +1,7 @@
 # Finite-Size Corrections of Defect Energy Levels Involving Ionic Polarization
 
 
-<img src="logo.png" width="20%">
+<img align="right" src="logo.png" width="15%">
 
 This script calculates the finite-size corrections of total energies and single-particle energy levels involving defect states with built-in ionic polarization in supercell calculations. The method accounts on an equal footing for the screening of the electrons and of the ionic polarization charge arising from the lattice distortions. These corrections allow one to achieve accurate optical transition energies and single-particle defect levels without requiring computationally prohibitive system-size scalings. An extensive documentation of the method can be found in the paper of [Falletta *et al.*](https://journals.aps.org/prb/accepted/a307bYebYaa1f267498c8912422be5af7ddfad0fc)
 
