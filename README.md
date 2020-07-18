@@ -25,3 +25,20 @@ An example of input file is ``input-MgO.dat``, where the finite-size corrections
 
 ## Cite
 Please cite [our paper](https://journals.aps.org/prb/accepted/a307bYebYaa1f267498c8912422be5af7ddfad0fc) if you use this code in your own work.
+```
+@article{PhysRevB.102.041115,
+  title = {Finite-size corrections of defect energy levels involving ionic polarization},
+  author = {Falletta, Stefano and Wiktor, Julia and Pasquarello, Alfredo},
+  journal = {Phys. Rev. B},
+  volume = {102},
+  issue = {4},
+  pages = {041115},
+  numpages = {5},
+  year = {2020},
+  month = {Jul},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRevB.102.041115},
+  url = {https://link.aps.org/doi/10.1103/PhysRevB.102.041115}
+}
+```
+
