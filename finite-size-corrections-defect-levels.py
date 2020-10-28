@@ -16,19 +16,51 @@ plt.rcParams.update({'font.size': 24,'legend.fontsize': 20,'legend.handlelength'
 
 #Constants
 hartree2eV = 27.211396132
-bohr2A = 0.529177249
-A2bohr = 1.8897259886
+bohr2A     = 0.529177249
+A2bohr     = 1.8897259886
+Eunit2eV   = hartree2eV     # if CP2K
+#Eunit2eV  = hartree2eV*0.5 # if QuantumEspresso
 
-# Gaussian function
-def gaussian(x, sig, xmax):
-    return 1/((2.0*np.pi*sig**2)**0.5) * np.exp( -0.5 * (min(x, xmax-x)/sig)**2 )
-    
-# Gaussian in K-space for unitary charge
 def rho(k,σ):
-	return np.exp(-0.5 * σ**2 * k**2)	
+    
+    """
+    Gaussian in K-space for unitary charge
+    rho(k) = exp(-0.5 * |k|**2)
+    * k:    modulus k vector
+    * σ:    variance gaussian
+    """
+    
+    return np.exp(-0.5 * σ**2 * k**2)	
 
-# Convolution of two arrays with same length
+
+def window_funct(N, k=4):
+    
+    """
+    Window function
+    * N : number of points in 1D grid
+    * k : fraction of N for a bin
+    """
+    
+    window = np.zeros(N)
+    Nk = N / k
+    if Nk % 2 == 0:
+        window[0:int(Nk/2)]   = 1
+        window[N-int(Nk/2):N] = 1
+    else:
+        window[0:int(Nk/2)+1] = 1
+        window[N-int(Nk/2):N] = 1
+    window = window / Nk
+    return window
+
+
 def convolution(f,g):
+    
+    """
+    Convolution of two arrays with same length
+    * f : array
+    * g : array
+    """
+    
     dim=len(f)
     res=np.zeros(dim)																																								
     for i in range(dim):
@@ -38,18 +70,43 @@ def convolution(f,g):
         res[i]=s				
     return res
 
-# Trasform fractional coordinates to cartesian coordinates
-def from_fractional_to_cartesian(v, p):
-    [a,b,c] = p[0:3]
-    [alpha,beta,gamma] = [x*np.pi/180 for x in p[3:] ]
-    omega = a*b*c*np.sqrt(1-np.cos(alpha)**2-np.cos(beta)**2-np.cos(gamma)**2+2*np.cos(alpha)*np.cos(beta)*np.cos(gamma))
-    Mfc=[[a, b*np.cos(gamma), c*np.cos(beta)],
-         [0.0, b*np.sin(gamma), c*(np.cos(alpha)-np.cos(beta)*np.cos(gamma))/(np.sin(gamma))], 
-         [0.0, 0.0, omega/(a*b*np.sin(gamma))]]
-    return np.dot(Mfc, v)
 
-# Parse input file
+def from_fractional_to_cartesian(v, p):
+    
+    """
+    Tranformation from fractional to cartesian coordinates
+    * v: input vector
+    * p: lattice parameters [a, b, c, α, β, γ] (angles in degrees)
+    """
+    
+    [a,b,c] = p[0:3]
+    [α,β,γ] = [x*np.pi/180 for x in p[3:] ]
+    omega = a*b*c*np.sqrt(1-np.cos(α)**2-np.cos(β)**2-np.cos(γ)**2+2*np.cos(α)*np.cos(β)*np.cos(γ))
+    M = [[a, b*np.cos(γ), c*np.cos(β)],
+        [0.0, b*np.sin(γ), c*(np.cos(α)-np.cos(β)*np.cos(γ))/(np.sin(γ))], 
+        [0.0, 0.0, omega/(a*b*np.sin(γ))]]
+    return np.dot(M, v)
+
+
 def parser(infile):
+    
+    """ 
+    Parser input file
+    * states:       states of the system, grouped as (qC,qR)
+    * Vtots:        dictionary for the potentials, with keys (qC,qR)
+    * parameters =  [system, p, rdef, r_idir, Ecut, dir, σ, ε0, εinf, align]
+    - system:     arbitrary name of the system
+    - p:          lattice parameters
+    - rdef:       defect position
+    - r_idir:     real-space 1D grid in the direction specified by dir
+    - Ecut:       cutoff energy in Rydberg
+    - dir:        direction for the calculation of the alignment (x,y,z)
+    - σ:          variance Gaussian for model charge distribution
+    - ε0:         static dielectric constant
+    - εinf:       high frequency dielectric constant
+    - align:      flag for alignment
+    """
+    
     with open(infile, 'r') as f:
         data = f.readlines()
     for line in data:
@@ -99,8 +156,13 @@ def parser(infile):
     return [parameters, states, Vtots]
     
 
-# Electrostatic potential
 class Potential:
+    
+    """
+    Average electrostatic potential along r_idir
+    * cubefile: 3D cubefile containing the potential in the units Eunit2eV
+    * dir:      direction along which the electrostatic potential is averaged
+    """    
     
     def __init__ (self, cubefile, dir):
         
@@ -126,7 +188,7 @@ class Potential:
         for i in range(nx):
             for j in range(ny):
                 for k in range(nz):
-                    V_3D[i,j,k] = data[i*ny*nz + j*nz + k] * hartree2eV
+                    V_3D[i,j,k] = data[i*ny*nz + j*nz + k] * Eunit2eV
         
         # Projected potential
         if dir == "x":
@@ -140,8 +202,25 @@ class Potential:
         # Invert sign
         self.V = -V                
         
-# FNV corrections
+
 def FNV_corr(parameters):
+    
+    """
+    Model correction scheme of Freysoldt, Neugebauer, and Van de Walle
+    in the case of isotropic screening and unitary charge. The model
+    charge distribution	is a Gaussian.
+    parameters =  [system, p, rdef, r_idir, Ecut, dir, σ, ε0, εinf, align]
+    - system:   arbitrary name of the system
+    - p:        lattice parameters
+    - rdef:     defect position
+    - r_idir:   real-space 1D grid in the direction specified by dir
+    - Ecut:     cutoff energy in Rydberg
+    - dir:      direction for the calculation of the alignment (x,y,z)
+    - σ:        variance Gaussian for model charge distribution
+    - ε0:       static dielectric constant
+    - εinf:     high frequency dielectric constant
+    - align:    flag for alignment
+    """
     
     # inputs and unit conversions
     [system, p, rdef, r_idir, Ecut, dir, σ, ε0, εinf, align] = parameters
@@ -188,7 +267,7 @@ def FNV_corr(parameters):
                         Eper += (2*np.pi)/(vol) * (rho(G,σ))**2 / (G**2)
     Eper *= hartree2eV
     
-    # Model potential for a Gaussian charge distribution (in eV)
+    # Model potential for a Gaussian charge distribution (in eV), for q=1 and ε=1
     Vgauss_r = []
     if align:
         Vgauss_g = np.zeros(n[idir],dtype=complex)
@@ -201,15 +280,35 @@ def FNV_corr(parameters):
     
     return [Eiso, Eper, Vgauss_r]
     
-# Falletta-Wiktor-Pasquarello corrections
+
 class FWP_corr:
+    
+    """
+    Falletta-Wiktor-Pasquarello finite-size corrections
+    * state:        state (qC,qR)
+    * parameters:   [system, p, rdef, r_idir, Ecut, dir, σ, ε0, εinf, align]
+    - system:     arbitrary name of the system
+    - p:          lattice parameters
+    - rdef:       defect position
+    - r_idir:     real-space 1D grid in the direction specified by dir
+    - Ecut:       cutoff energy in Rydberg
+    - dir:        direction for the calculation of the alignment (x,y,z)
+    - σ:          variance Gaussian for model charge distribution
+    - ε0:         static dielectric constant
+    - εinf:       high frequency dielectric constant
+    - align:      flag for alignment
+    * Eiso:         isolated defect energy (in eV), for q=1 and ε=1
+    * Eper:         periodic defect energy (in eV), for q=1 and ε=1
+    * Vgauss:       model potential for a Gaussian charge distribution (in eV), for q=1 and ε=1
+    * Vtots:        dictionary for the potentials, with keys (qC,qR)
+    """
     
     #Initialization
     def __init__ (self, state, parameters, Eiso, Eper, Vgauss, Vtots):
         
         #Parse inputs
         [self.system, self.p, self.rdef, self.r_idir, self.Ecut, 
-         self.dir, self.σ, self.ε0, self.εinf, self.align] = parameters
+        self.dir, self.σ, self.ε0, self.εinf, self.align] = parameters
         self.qC     = state[0]
         self.qR     = state[1]
         self.qpol   = -self.qR*(1-self.εinf/self.ε0)
@@ -271,17 +370,12 @@ class FWP_corr:
         
         return qΔV
             
-    # Alignment for state with qC = qR
+    # Alignment FNV
     def calculate_alignment_FNV(self, V, Vgauss, extralabel, plot_flag=True):
         
-        #Convolution of V with a gaussian of the same width as the model potential
-        N = len(V)
-        V_convolution = [0]*N
-        for i in range(N):
-            V_convolution[i] = gaussian(self.r_idir[i], self.σ, self.r_idir[-1]) / self.p[self.idir]
-        V_convolution = convolution(V, V_convolution)
-        area_below_gaussian = integrate.quad(lambda x: gaussian(x,self.σ,self.r_idir[-1]), 0, self.r_idir[-1])[0]
-        V_convolution = [x/area_below_gaussian for x in V_convolution]
+        #Convolution of V with a window function
+        window = window_funct(len(V))
+        V_convolution = convolution(V, window)    
         
         #Useful quantities
         r_idir_meas = self.r_idir[self.i_ΔV]
@@ -312,7 +406,7 @@ class FWP_corr:
             plt.legend(frameon=False)
             pdf.savefig()
             plt.close()
-    
+   
         return ΔV_far
 
 # Executing the script
